@@ -1,0 +1,11 @@
+MANIFEST.in
+README.md
+setup.py
+./properties/__init__.py
+./properties/config.py
+./properties/excel_database.xlsx
+json_to_excel.egg-info/PKG-INFO
+json_to_excel.egg-info/SOURCES.txt
+json_to_excel.egg-info/dependency_links.txt
+json_to_excel.egg-info/top_level.txt
+properties/excel_database.xlsx
