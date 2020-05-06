@@ -6,7 +6,7 @@ import logging.config
 import yaml
 import shutil
 
-#--------------------importing cocnfigs and setting logger---------------------
+#--------------------importing process cocnfigs and setting logger---------------------
 sys.path.insert(1, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import properties.config as config
 
@@ -19,36 +19,54 @@ logger = logging.getLogger('JSONExcelTask')
 
 
 def create_sample_json(count=None):
+    """Function to create 'count' number of JSONs
+
+    Args:
+        count (int, optional): Number of sample JSONs to be created. Defaults to None.
+
+    Returns:
+        dict: JSON load with all individual JSONs in consecutive rows
+    """    
 
     logger.info("Starting create sample json task")
     try:
         json_input = list()
-        for index in range(1, count):
+        for index in range(1, count+1):
             json_input_ = dict()
             json_input_['Ref'] = f'ABC_{index}'
             json_input_['sample'] = f'sample_status_{index}'
             json_input.append(json_input_)
-
+        
         json_dump = json.dumps(json_input)
         json_load = json.loads(json_dump)
-        return json_load
+        result = json_load
     
     except Exception as e:
         logger.exception(f"Exception occured: {str(e)}")
-        return "Exception occured!"
+        result = "Exception occured!"
     
     logger.info("Finished create sample json task")
+    return result
 
 
 class ExcelHandling:
+    """Class to handle all excel reading and writing operations of dumping input load to excel.
+    """    
 
     def __init__(self, json_load=None):
+        """Pass JSON load while creating object
+
+        Args:
+            json_load (dict, optional): JDON dump to be uploaded to exccel file. Defaults to None.
+        """
 
         self.data_set = None
         self.json_load = json_load
         self.process_excel_file = os.path.join(config.processing_folder, os.path.basename(config.excel_file))
 
     def read_from_excel(self):
+        """Create and read sample excel file.
+        """        
 
         if os.path.exists(self.process_excel_file):
             os.remove(self.process_excel_file)
@@ -59,6 +77,11 @@ class ExcelHandling:
         self.data_set = pd.read_excel(self.process_excel_file, sheet_name='Sheet1')
 
     def write_to_excel(self):
+        """Write JSON dump to excel file iteratively for  all rows of JSONs
+
+        Returns:
+            bool: True if operation successfull
+        """        
         
         i = 1
         for item in self.json_load:
