@@ -63,10 +63,19 @@ class ExcelHandling:
         self.data_set = None
         self.json_load = json_load
         self.process_excel_file = os.path.join(config.processing_folder, os.path.basename(config.excel_file))
-
-    def read_from_excel(self):
+        
+    def read_from_excel(self, process_file=None):
         """Create and read sample excel file.
+
+        Args:
+            process_file (string, optional): Excel file for  reading data other than theone specified in config. Defaults to None.
+
+        Returns:
+            bool: Returns true if operations successfull
         """        
+
+        if process_file is not None:
+            self.process_excel_file = process_file
 
         if os.path.exists(self.process_excel_file):
             os.remove(self.process_excel_file)
@@ -75,6 +84,7 @@ class ExcelHandling:
             shutil.copyfile(config.excel_file, self.process_excel_file)
         
         self.data_set = pd.read_excel(self.process_excel_file, sheet_name='Sheet1')
+        return True
 
     def write_to_excel(self):
         """Write JSON dump to excel file iteratively for  all rows of JSONs
@@ -102,10 +112,11 @@ if __name__ == '__main__':
         logger.info("Starting Excel Handling task")
         try:
             excel_obj = ExcelHandling(json_load=result_json)
-            excel_obj.read_from_excel()
-            result = excel_obj.write_to_excel()
-            print(result)
-            logger.info(f"Result of writing to excel: {result}")
+            result_read = excel_obj.read_from_excel()
+            if result_read:
+                result_write = excel_obj.write_to_excel()
+                sys.stdout.write(f"{result_write}\n")
+                logger.info(f"Result of writing to excel: {result_write}")
         except Exception as e_:
             logger.exception(f"Exception occured in ExceclHandling class: {str(e_)}")
         logger.info("Finished Excel Handling task")
